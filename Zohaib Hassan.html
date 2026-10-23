@@ -1,0 +1,587 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Zohaib Hassan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Archivo:wdth,wght@100,800;125,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: a game trainer card. Resume content only, shown as a card, stat bars, battle log and move cards. Red, yellow, blue palette. */
+:root {
+  --paper: #F5F6FB;
+  --surface: #FFFFFF;
+  --ink: #14172E;
+  --muted: #4B5278;
+  --line: #C9CEE3;
+  --red: #D92B04;
+  --yellow: #FFCB05;
+  --blue: #3B4CCA;
+  --green: #2E9E4A;
+  --accent: #D92B04;
+  --bar-track: #E3E6F4;
+  --deep-blue: #2A38A5;
+  --font-display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-pixel: "Press Start 2P", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12152B; --surface: #1C2145; --ink: #F2F4FF; --muted: #AEB6DB; --line: #343C6E;
+    --red: #FF6B4A; --yellow: #FFD83A; --blue: #8C9BFF; --green: #6CCB6F; --accent: #FF6B4A;
+    --bar-track: #2A3160;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12152B; --surface: #1C2145; --ink: #F2F4FF; --muted: #AEB6DB; --line: #343C6E;
+  --red: #FF6B4A; --yellow: #FFD83A; --blue: #8C9BFF; --green: #6CCB6F; --accent: #FF6B4A;
+  --bar-track: #2A3160;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.05; text-wrap: balance; margin: 0; }
+.label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.px { font-family: var(--font-pixel); font-size: 11px; line-height: 1.6; letter-spacing: 0; text-transform: uppercase; }
+
+.stripe { height: 10px; background: linear-gradient(90deg, var(--red) 0 34%, var(--yellow) 34% 67%, var(--blue) 67% 100%); }
+
+.top { display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; align-items: center; padding-block: 16px; border-bottom: 2px solid var(--ink); }
+.top nav { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.top nav a { font-family: var(--font-pixel); font-size: 10px; text-decoration: none; padding-block: 6px; border-bottom: 3px solid transparent; text-transform: uppercase; }
+.top nav a:hover { border-bottom-color: var(--red); }
+
+/* trainer card */
+.card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; margin-top: 40px; padding: 28px; background: var(--surface); border: 3px solid var(--ink); border-top: 12px solid var(--red); box-shadow: 6px 6px 0 var(--ink); }
+.avatar { width: 150px; height: 150px; display: grid; place-items: center; background: var(--yellow); border: 3px solid var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 3.5rem; color: #14172E; letter-spacing: -0.04em; }
+.card h1 { font-size: clamp(2.4rem, 7vw, 4.5rem); letter-spacing: -0.02em; margin: 10px 0 14px; }
+.card h1 span { color: var(--red); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; }
+.facts li { font-family: var(--font-mono); font-size: 12px; border: 2px solid var(--ink); background: var(--paper); padding: 3px 10px; }
+.card p.lede { margin: 0; max-width: 40em; font-size: 1.0625rem; }
+@media (max-width: 640px) { .card { grid-template-columns: minmax(0, 1fr); padding: 20px; } .avatar { width: 96px; height: 96px; font-size: 2.2rem; } }
+
+/* stat bars */
+.bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 32px; }
+.bar { background: var(--surface); border: 2px solid var(--ink); padding: 16px 18px 18px; display: grid; gap: 8px; }
+.bar .top-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.bar b { font-family: var(--font-display); font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.track { height: 16px; background: var(--bar-track); border: 2px solid var(--ink); }
+.fill { height: 100%; background: var(--c); width: var(--w); }
+.bar p { margin: 0; color: var(--muted); font-size: 0.9375rem; }
+
+section { padding-block: 64px 0; }
+.sec-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; margin-bottom: 24px; }
+.sec-head h2 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); }
+.sec-head .px { color: var(--muted); }
+
+/* battles */
+.log { display: grid; gap: 16px; }
+.battle { display: grid; grid-template-columns: minmax(0, 230px) minmax(0, 1fr); gap: 10px 36px; padding: 24px; background: var(--surface); border: 2px solid var(--ink); border-left: 12px solid var(--c); }
+.battle:nth-child(1) { --c: var(--red); }
+.battle:nth-child(2) { --c: var(--yellow); }
+.battle h3 { font-size: 1.5rem; }
+.battle .where { color: var(--muted); margin-top: 8px; }
+.battle ul { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; }
+.battle li::marker { color: var(--red); }
+@media (max-width: 700px) { .battle { grid-template-columns: minmax(0, 1fr); } }
+
+/* move cards */
+.moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.move { background: var(--surface); border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); display: grid; grid-template-rows: auto 1fr auto; min-width: 0; }
+.move header { background: var(--type); color: #14172E; padding: 14px 18px; border-bottom: 3px solid var(--ink); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; }
+.move header h3 { font-size: 1.375rem; }
+.move header .px { font-size: 9px; background: #14172E; color: #FFFFFF; padding: 4px 8px; }
+.move.electric { --type: #FFCB05; } .move.grass { --type: #5CC364; } .move.steel { --type: #A9B6CC; } .move.water { --type: #5FB0FF; }
+.move { grid-template-rows: auto auto 1fr auto; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.move:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 var(--ink); }
+
+/* photo slot with effects */
+.photo { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 3px solid var(--ink); background:
+  repeating-linear-gradient(45deg, transparent 0 14px, rgba(20, 23, 46, 0.06) 14px 15px),
+  linear-gradient(135deg, color-mix(in srgb, var(--type) 35%, var(--surface)), var(--surface)); isolation: isolate; }
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.photo .empty { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--muted); text-align: center; padding: 16px; }
+.photo .empty { z-index: 3; }
+.photo .empty .label { background: var(--surface); color: var(--ink); padding: 2px 8px; }
+.photo .empty svg { width: 44px; height: 44px; stroke: var(--ink); fill: none; stroke-width: 2; }
+.photo .empty .px { font-size: 9px; color: var(--ink); }
+/* viewfinder corners */
+.photo::before { content: ""; position: absolute; inset: 12px; z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(var(--ink), var(--ink)) top left / 22px 3px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) top left / 3px 22px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) top right / 22px 3px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) top right / 3px 22px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 22px 3px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 3px 22px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 22px 3px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 3px 22px no-repeat; }
+/* scan line and shine sweep */
+.photo::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%);
+  transform: translateX(-120%); }
+.move:hover .photo::after { transform: translateX(120%); transition: transform 0.8s ease; }
+.photo .scan { position: absolute; left: 0; right: 0; height: 3px; z-index: 2; background: var(--red); opacity: 0.55; top: 0; animation: scan 4.5s linear infinite; pointer-events: none; }
+.photo .tag { position: absolute; left: 12px; bottom: 12px; z-index: 4; background: #14172E; color: #FFFFFF; padding: 4px 8px; font-family: var(--font-pixel); font-size: 8px; text-transform: uppercase; }
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+/* per-project effects: each one acts out what the project does */
+.photo > :not(.empty):not(.tag) { pointer-events: none; }
+
+/* Robot: sonar pings plus a bot driving a course */
+.fx-robot .ping { position: absolute; left: 50%; bottom: 8%; width: 20px; height: 20px; margin-left: -10px; border: 2px solid var(--red); border-radius: 50%; z-index: 2; opacity: 0; animation: ping 3s ease-out infinite; }
+.fx-robot .p2 { animation-delay: 1s; } .fx-robot .p3 { animation-delay: 2s; }
+@keyframes ping { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(14); opacity: 0; } }
+.fx-robot .course { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
+.fx-robot .course path { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 6 6; opacity: 0.45; vector-effect: non-scaling-stroke; }
+.fx-robot .bot { fill: var(--red); stroke: var(--ink); stroke-width: 1.5; }
+.move:hover .fx-robot .ping { animation-duration: 1.4s; }
+
+/* Wheelchair: CAD grid, turning wheel, dimension line that draws itself */
+.fx-chair .cadgrid { position: absolute; inset: 0; z-index: 1; background-image: linear-gradient(rgba(20, 23, 46, 0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(20, 23, 46, 0.14) 1px, transparent 1px); background-size: 24px 24px; animation: gridpan 6s linear infinite; }
+@keyframes gridpan { to { background-position: 24px 24px; } }
+.fx-chair .wheel { position: absolute; right: 10%; top: 50%; width: 46%; max-width: 190px; margin-top: -23%; z-index: 2; fill: none; stroke: var(--ink); stroke-width: 2; opacity: 0.55; animation: spin 10s linear infinite; }
+.fx-chair .wheel path { stroke-width: 1.2; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fx-chair .dim-h { position: absolute; left: 8%; right: 8%; bottom: 16%; width: 84%; height: 20px; z-index: 2; }
+.fx-chair .dim-h path { fill: none; stroke: var(--red); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 220; stroke-dashoffset: 220; animation: draw 3.6s ease-in-out infinite; }
+@keyframes draw { 0% { stroke-dashoffset: 220; } 45%, 80% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -220; } }
+.move:hover .fx-chair .wheel { animation-duration: 3s; }
+
+/* Servo arm: two linked arms sweeping through angles over a protractor */
+.fx-arm .protractor { position: absolute; left: 14%; bottom: 14%; width: 46%; aspect-ratio: 2 / 1; z-index: 1; border: 2px dashed var(--ink); border-bottom: 0; border-radius: 999px 999px 0 0; opacity: 0.35; }
+.fx-arm .link1 { position: absolute; left: 14%; bottom: 14%; width: 36%; height: 8px; margin-top: -4px; background: var(--ink); border-radius: 4px; transform-origin: 4px 50%; z-index: 2; animation: sweep1 4s ease-in-out infinite; }
+.fx-arm .link1::after { content: ""; position: absolute; inset: 2px; background: var(--red); border-radius: 3px; }
+.fx-arm .link2 { position: absolute; left: calc(100% - 4px); top: 0; width: 80%; height: 8px; background: var(--ink); border-radius: 4px; transform-origin: 4px 50%; animation: sweep2 4s ease-in-out infinite; }
+.fx-arm .link2::after { content: ""; position: absolute; inset: 2px; background: var(--red); border-radius: 3px; }
+.fx-arm .tip { position: absolute; right: -6px; top: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); z-index: 1; }
+.fx-arm .joint { position: absolute; left: calc(14% - 9px); bottom: calc(14% - 9px); width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 3px solid var(--ink); z-index: 3; }
+@keyframes sweep1 { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-65deg); } }
+@keyframes sweep2 { 0%, 100% { transform: rotate(40deg); } 50% { transform: rotate(-30deg); } }
+.move:hover .fx-arm .link1, .move:hover .fx-arm .link2 { animation-duration: 1.8s; }
+
+/* Pipe: water flows left to right, bubbles rise */
+.fx-pipe .flow { position: absolute; left: 0; right: 0; top: 28%; bottom: 28%; z-index: 1; border-block: 4px solid var(--ink); background:
+  repeating-linear-gradient(115deg, transparent 0 22px, rgba(255, 255, 255, 0.6) 22px 30px),
+  linear-gradient(180deg, #5FB0FF, #2E7FE0); background-size: 60px 100%, 100% 100%; opacity: 0.8; animation: flow 1.6s linear infinite; }
+@keyframes flow { to { background-position: 60px 0, 0 0; } }
+.fx-pipe .bub { position: absolute; bottom: 30%; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #FFFFFF; background: rgba(255, 255, 255, 0.35); z-index: 2; opacity: 0; animation: rise 3.2s ease-in infinite; }
+.fx-pipe .b1 { left: 18%; } .fx-pipe .b2 { left: 38%; animation-delay: 0.9s; width: 14px; height: 14px; } .fx-pipe .b3 { left: 60%; animation-delay: 1.8s; } .fx-pipe .b4 { left: 80%; animation-delay: 2.5s; width: 8px; height: 8px; }
+@keyframes rise { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-60px); opacity: 0; } }
+.move:hover .fx-pipe .flow { animation-duration: 0.5s; }
+
+/* CAD renders */
+.photo.cad { background-color: color-mix(in srgb, var(--blue) 12%, var(--surface)); background-image: linear-gradient(color-mix(in srgb, var(--ink) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--ink) 12%, transparent) 1px, transparent 1px); background-size: 20px 20px; }
+.photo .render { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.render .note { font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.06em; fill: var(--muted); }
+.render .note.red { fill: var(--red); font-weight: 500; }
+.render .guide { fill: none; stroke: var(--red); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: 0.7; }
+.render .streams line { stroke: #FFFFFF; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 14 12; animation: streamflow 1s linear infinite; }
+@keyframes streamflow { to { stroke-dashoffset: -26; } }
+.move:hover .render .streams line { animation-duration: 0.4s; }
+
+/* page-wide effects */
+.stripe { position: relative; overflow: hidden; }
+.stripe::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 30%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent); animation: glide 4.5s ease-in-out infinite; }
+@keyframes glide { from { transform: translateX(-100%); } to { transform: translateX(440%); } }
+
+.top nav a { transition: transform 0.15s ease; }
+.top nav a:hover { transform: translateY(-3px); }
+
+.card { animation: pop 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+@keyframes pop { from { transform: translateY(14px) scale(0.985); } to { transform: none; } }
+.avatar { position: relative; overflow: hidden; transition: transform 0.25s ease; }
+.avatar::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.75) 50%, transparent 62%); transform: translateX(-130%); animation: avatarshine 5s ease-in-out 1s infinite; }
+@keyframes avatarshine { 0%, 60% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+.avatar:hover { animation: wiggle 0.5s ease; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+.card h1 span { transition: text-shadow 0.2s ease; }
+.card:hover h1 span { text-shadow: 3px 3px 0 var(--yellow); }
+.facts li { transition: transform 0.15s ease, background 0.15s ease; }
+.facts li:hover { transform: translateY(-2px); background: var(--yellow); color: #14172E; }
+
+.fill { position: relative; overflow: hidden; animation: fillup 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes fillup { from { width: 0; } to { width: var(--w); } }
+.fill::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 25%, transparent 25% 50%, rgba(255, 255, 255, 0.35) 50% 75%, transparent 75%); background-size: 24px 24px; animation: stripes 1s linear infinite; }
+@keyframes stripes { to { background-position: 24px 0; } }
+.bar { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.bar:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--ink); }
+
+.battle { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.battle:hover { transform: translateX(8px); box-shadow: 6px 6px 0 var(--ink); }
+
+.tags span { transition: transform 0.15s ease, background 0.15s ease; }
+.tags span:hover { transform: translateY(-2px) rotate(-2deg); background: var(--yellow); color: #14172E; }
+.skills > div { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.skills > div:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--ink); }
+
+.sec-head h2 { position: relative; }
+.sec-head h2::after { content: ""; display: block; height: 6px; margin-top: 10px; background: linear-gradient(90deg, var(--red), var(--yellow), var(--blue)); transform-origin: left; }
+
+.btn { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.btn:hover { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 #14172E; }
+.btn:active { transform: translate(0, 0); box-shadow: none; }
+.btn.pulse { animation: pulse 2.4s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 203, 5, 0.7); } 70%, 100% { box-shadow: 0 0 0 12px rgba(255, 203, 5, 0); } }
+.edu > div { transition: transform 0.2s ease; }
+.edu > div:hover { transform: translateX(6px); }
+footer a { transition: transform 0.15s ease; display: inline-block; }
+footer a:hover { transform: translateY(-3px); }
+
+/* scroll-driven reveals where the browser supports them */
+@supports (animation-timeline: view()) {
+  @keyframes slideup { from { translate: 0 28px; } to { translate: 0 0; } }
+  @keyframes grow { from { transform: scaleX(0.12); } to { transform: scaleX(1); } }
+  .battle, .move, .skills > div, .edu > div, .contact { animation: slideup linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+  .sec-head h2::after { animation: grow linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .fill { width: var(--w); }
+}
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.photo .empty svg { animation: bob 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .photo .scan, .photo .empty svg, .photo *, .move:hover .photo * { animation: none !important; }
+  .fx-robot .bot { display: none; }
+  .fx-robot .ping { opacity: 0.4; }
+  .fx-arm .link1 { transform: rotate(-40deg); } .fx-arm .link2 { transform: rotate(10deg); }
+  .fx-chair .dim-h path { stroke-dashoffset: 0; }
+  .fx-pipe .bub { opacity: 0.8; }
+  .move, .move:hover { transition: none; transform: none; }
+  .move:hover .photo::after { transition: none; }
+}
+.move .body { padding: 18px; }
+.move ul { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; font-size: 0.9375rem; }
+.move li::marker { color: var(--red); }
+.move footer { padding: 14px 18px 18px; border-top: 2px dashed var(--line); display: grid; gap: 10px; }
+.move .res { margin: 0; font-weight: 500; font-size: 0.9375rem; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--ink); border-radius: 999px; padding: 2px 10px; background: var(--paper); }
+
+/* stats */
+.skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.skills > div { padding: 22px; min-width: 0; background: var(--surface); border: 2px solid var(--ink); border-top: 10px solid var(--c); }
+.skills > div:nth-child(1) { --c: var(--blue); } .skills > div:nth-child(2) { --c: var(--red); } .skills > div:nth-child(3) { --c: var(--yellow); }
+.skills h3 { font-size: 1.125rem; margin-bottom: 14px; }
+
+/* education + contact */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.edu { border-top: 3px solid var(--ink); padding-top: 18px; display: grid; gap: 22px; align-content: start; }
+.edu h3 { font-size: 1.375rem; margin-top: 8px; }
+.edu p { margin: 4px 0 0; color: var(--muted); }
+.contact { background: var(--deep-blue); color: #FFFFFF; padding: 28px; border: 3px solid var(--ink); border-top: 12px solid var(--yellow); box-shadow: 6px 6px 0 var(--ink); }
+.contact .label { color: #DDE2FF; }
+.contact h2 { font-size: clamp(1.8rem, 4.5vw, 2.4rem); margin: 10px 0 12px; }
+.contact .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding-block: 14px; border-top: 1px solid rgba(255, 255, 255, 0.3); }
+.contact .row .label { flex: 0 0 5ch; }
+.contact .val { font-family: var(--font-mono); font-size: 0.9375rem; overflow-wrap: anywhere; flex: 1 1 14ch; min-width: 0; color: #FFFFFF; }
+.btn, .copy { font-family: var(--font-mono); font-size: 13px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 16px; border: 2px solid #FFFFFF; border-radius: 999px; cursor: pointer; }
+.btn { background: #FFCB05; color: #14172E; border-color: #FFCB05; }
+.btn:hover { background: #FFE04D; border-color: #FFE04D; }
+.copy { background: transparent; color: #FFFFFF; }
+.copy:hover { background: rgba(255, 255, 255, 0.16); }
+.contact :focus-visible { outline-color: #FFFFFF; }
+
+footer { padding-block: 56px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; }
+footer a { color: var(--ink); text-underline-offset: 3px; font-family: var(--font-pixel); font-size: 11px; text-transform: uppercase; }
+footer a:hover { color: var(--red); }
+</style>
+
+<div class="wrap">
+  <div class="stripe" aria-hidden="true"></div>
+  <header class="top">
+    <span class="px">Zohaib Hassan</span>
+    <nav aria-label="Sections">
+      <a href="#profile">Profile</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="card" id="profile">
+    <div class="avatar" aria-hidden="true">ZH</div>
+    <div>
+      <span class="px" style="color:var(--red)">Engineering student</span>
+      <h1>Zohaib <span>Hassan</span></h1>
+      <ul class="facts">
+        <li>University of Guelph</li>
+        <li>Bachelor of Engineering, 2025 to 2030</li>
+        <li>Ontario, Canada</li>
+      </ul>
+      <p class="lede">I design, print and program small machines. My work covers SolidWorks models that cut weight, Arduino robots tuned with PID control, and prototypes tested until they fit and work.</p>
+    </div>
+  </div>
+
+  <div class="bars" role="list" aria-label="Results from my projects">
+    <div class="bar" role="listitem" style="--c: var(--red); --w: 12%"><div class="top-line"><b>12%</b><span class="px">Weight cut</span></div><div class="track"><div class="fill"></div></div><p>Robot weight reduced with SolidWorks redesigns.</p></div>
+    <div class="bar" role="listitem" style="--c: var(--yellow); --w: 90%"><div class="top-line"><b>90%</b><span class="px">Accuracy</span></div><div class="track"><div class="fill"></div></div><p>Path tracking with PID control.</p></div>
+    <div class="bar" role="listitem" style="--c: var(--blue); --w: 83%"><div class="top-line"><b>83%</b><span class="px">New places</span></div><div class="track"><div class="fill"></div></div><p>New environments the robot handled.</p></div>
+    <div class="bar" role="listitem" style="--c: var(--green); --w: 90%"><div class="top-line"><b>90%</b><span class="px">Assembly</span></div><div class="track"><div class="fill"></div></div><p>Assembly efficiency on the robotics team.</p></div>
+  </div>
+
+  <section id="experience">
+    <div class="sec-head"><h2>Experience</h2><span class="px">2 roles</span></div>
+    <div class="log">
+      <div class="battle">
+        <div>
+          <h3>Robotics Team Member</h3>
+          <p class="where label">Robotics Team, Guelph, Ontario<br>Sep 2025 to present</p>
+        </div>
+        <ul>
+          <li>Responded to team requests by testing and troubleshooting 12+ system components, then improving the designs.</li>
+          <li>Worked with a multidisciplinary team to assemble, test and optimize robot parts, reaching 90% assembly efficiency.</li>
+          <li>Designed and optimized 10+ complex 3D models in SolidWorks to cut robot weight by 12%.</li>
+          <li>Ran 3D printers to produce prototypes and functional parts so the team could test and develop designs.</li>
+        </ul>
+      </div>
+      <div class="battle">
+        <div>
+          <h3>Barista</h3>
+          <p class="where label">Starbucks, Milton, Ontario<br>Feb 2026 to present</p>
+        </div>
+        <ul>
+          <li>Prepared and served beverages and food in a fast-paced, high-volume store while keeping quality and speed up.</li>
+          <li>Resolved customer concerns quickly with friendly, attentive service.</li>
+          <li>Worked with teammates to keep the store stocked, clean and compliant with food safety standards.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="sec-head"><h2>Projects</h2><span class="px">4 projects</span></div>
+    <div class="moves">
+      <article class="move electric">
+        <header><h3>Obstacle-Avoiding Robot</h3><span class="px">Embedded</span></header>
+        <div class="photo fx-robot"><div class="empty"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="12" width="38" height="28" rx="3"/><circle cx="24" cy="26" r="8"/><path d="M17 12l3-5h8l3 5"/></svg><span class="px">Photo slot</span><span class="label">Robot driving a test course</span></div>
+          <span class="ping p1" aria-hidden="true"></span><span class="ping p2" aria-hidden="true"></span><span class="ping p3" aria-hidden="true"></span>
+          <svg class="course" viewBox="0 0 320 200" preserveAspectRatio="none" aria-hidden="true"><path id="course-path" d="M10 170 C 70 170, 70 100, 130 100 S 190 40, 250 40 S 300 80, 312 60" /><circle class="bot" r="5"><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#course-path"/></animateMotion></circle></svg>
+          <span class="tag">Test run</span></div>
+        <div class="body"><ul>
+          <li>Built a robot that follows routes and avoids obstacles, using IR and ultrasonic sensors on an Arduino.</li>
+          <li>Wrote embedded C/C++ that reads sensor data in real time and runs the navigation logic.</li>
+          <li>Applied PID control through PWM signals to steady the robot's motion.</li>
+          <li>Tested and tuned the control variables and thresholds across many runs.</li>
+        </ul></div>
+        <footer>
+          <p class="res">90% path-tracking accuracy. Worked in 83% of new environments.</p>
+          <div class="tags"><span>Arduino</span><span>C/C++</span><span>PID control</span><span>IR sensors</span><span>Ultrasonic sensors</span></div>
+        </footer>
+      </article>
+
+      <article class="move grass">
+        <header><h3>Eco-Accessible Wheelchair</h3><span class="px">Team of 6</span></header>
+        <div class="photo fx-chair"><div class="empty"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="12" width="38" height="28" rx="3"/><circle cx="24" cy="26" r="8"/><path d="M17 12l3-5h8l3 5"/></svg><span class="px">Photo slot</span><span class="label">Prototype or CAD render</span></div>
+          <span class="cadgrid" aria-hidden="true"></span>
+          <svg class="wheel" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46"/><circle cx="50" cy="50" r="34"/><circle cx="50" cy="50" r="5"/><path d="M50 4V96M4 50H96M17 17L83 83M83 17L17 83"/></svg>
+          <svg class="dim-h" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 10H196M4 3V17M196 3V17"/></svg>
+          <span class="tag">Prototype</span></div>
+        <div class="body"><ul>
+          <li>Started from accessibility needs and design constraints and produced a wheelchair concept that balances safety and cost.</li>
+          <li>Drew 15+ sketches and CAD models to compare form, structure and how easily it assembles.</li>
+          <li>Ran trade-off analyses on cost, materials and safety to support the final design decision.</li>
+          <li>Built a prototype with the team and documented the design reasoning, limitations and manufacturing techniques.</li>
+        </ul></div>
+        <footer>
+          <p class="res">A working prototype and a written record of why each design choice was made.</p>
+          <div class="tags"><span>SolidWorks</span><span>CAD</span><span>Engineering design process</span></div>
+        </footer>
+      </article>
+
+      <article class="move steel">
+        <header><h3>2-DOF Servo Arm</h3><span class="px">Mechatronics</span></header>
+        <div class="photo cad">
+          <svg class="render" viewBox="0 0 320 200" role="img" aria-label="CAD render of a two-joint servo arm sweeping through both joints">
+            <path class="guide" d="M200 150 A110 110 0 0 0 148 56" />
+            <path class="guide" d="M90 150 H210" />
+            <!-- base plate and first servo -->
+            <rect x="34" y="176" width="112" height="10" rx="2" fill="var(--ink)" />
+            <rect x="52" y="140" width="76" height="36" rx="4" fill="var(--blue)" stroke="var(--ink)" stroke-width="2.5" />
+            <rect x="60" y="148" width="26" height="6" rx="2" fill="var(--surface)" opacity="0.7" />
+            <!-- link 1 with servo 2 -->
+            <g>
+              <animateTransform attributeName="transform" type="rotate" values="-12 90 150;-58 90 150;-12 90 150" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1" />
+              <rect x="78" y="140" width="136" height="20" rx="10" fill="var(--red)" stroke="var(--ink)" stroke-width="2.5" />
+              <circle cx="202" cy="150" r="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5" />
+              <rect x="176" y="130" width="40" height="40" rx="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="2.5" />
+              <g transform="translate(202 150)">
+                <g>
+                  <animateTransform attributeName="transform" type="rotate" values="35 0 0;-25 0 0;35 0 0" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1" />
+                  <rect x="-10" y="-9" width="96" height="18" rx="9" fill="var(--red)" stroke="var(--ink)" stroke-width="2.5" />
+                  <circle cx="0" cy="0" r="9" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5" />
+                  <circle cx="0" cy="0" r="3" fill="var(--ink)" />
+                  <path d="M86 -9 L104 -12 L104 -3 L90 0 L104 3 L104 12 L86 9 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" />
+                </g>
+              </g>
+              <circle cx="90" cy="150" r="9" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5" />
+              <circle cx="90" cy="150" r="3" fill="var(--ink)" />
+            </g>
+            <text x="14" y="22" class="note">2-DOF ARM</text>
+            <text x="14" y="36" class="note">L1 + L2, 2 SERVOS</text>
+            <text x="222" y="120" class="note red">θ1</text>
+          </svg>
+          <span class="tag">CAD render</span></div>
+        <div class="body"><ul>
+          <li>Designed the links and joints of a two-joint arm in SolidWorks and 3D printed them for assembly.</li>
+          <li>Wrote Arduino C/C++ code that drives two servos and positions the arm through both joints.</li>
+          <li>Tested the assembled arm, then refined the mechanical design and the control code from what the tests showed.</li>
+        </ul></div>
+        <footer>
+          <p class="res">A printed, assembled arm that moves through both joints under code control.</p>
+          <div class="tags"><span>SolidWorks</span><span>3D printing</span><span>Arduino</span><span>C/C++</span></div>
+        </footer>
+      </article>
+
+      <article class="move water">
+        <header><h3>Pipe Water-Flow Part</h3><span class="px">Prototyping</span></header>
+        <div class="photo cad">
+          <svg class="render" viewBox="0 0 320 200" role="img" aria-label="CAD render of a printed custom part fitted inside a pipe with water flowing through it">
+            <defs>
+              <pattern id="pipe-hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="7" height="7" fill="var(--surface)" />
+                <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink)" stroke-width="1.5" />
+              </pattern>
+            </defs>
+            <!-- pipe walls in section -->
+            <rect x="0" y="58" width="320" height="16" fill="url(#pipe-hatch)" stroke="var(--ink)" stroke-width="2" />
+            <rect x="0" y="126" width="320" height="16" fill="url(#pipe-hatch)" stroke="var(--ink)" stroke-width="2" />
+            <!-- water -->
+            <rect x="0" y="74" width="320" height="52" fill="#5FB0FF" opacity="0.35" />
+            <!-- custom part -->
+            <path d="M120 74 H200 L184 91 H136 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" />
+            <path d="M120 126 H200 L184 109 H136 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" />
+            <rect x="110" y="52" width="12" height="96" rx="3" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5" />
+            <rect x="198" y="52" width="12" height="96" rx="3" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5" />
+            <circle cx="116" cy="62" r="2" fill="var(--ink)" /><circle cx="116" cy="138" r="2" fill="var(--ink)" />
+            <circle cx="204" cy="62" r="2" fill="var(--ink)" /><circle cx="204" cy="138" r="2" fill="var(--ink)" />
+            <!-- flow lines -->
+            <g class="streams">
+              <line x1="10" y1="86" x2="100" y2="86" /><line x1="10" y1="100" x2="100" y2="100" /><line x1="10" y1="114" x2="100" y2="114" />
+              <line x1="140" y1="100" x2="180" y2="100" />
+              <line x1="220" y1="86" x2="310" y2="86" /><line x1="220" y1="100" x2="310" y2="100" /><line x1="220" y1="114" x2="310" y2="114" />
+            </g>
+            <!-- leader and dimension -->
+            <path d="M160 52 V28 H196" fill="none" stroke="var(--red)" stroke-width="1.8" />
+            <text x="200" y="32" class="note red">CUSTOM PART</text>
+            <path d="M110 168 H210 M110 162 V174 M210 162 V174" fill="none" stroke="var(--red)" stroke-width="1.8" />
+            <text x="14" y="22" class="note">PIPE SECTION</text>
+            <text x="14" y="188" class="note">PRINTED PART, SECTION VIEW</text>
+          </svg>
+          <span class="tag">CAD render</span></div>
+        <div class="body"><ul>
+          <li>Found a water-flow problem in a pipe and modelled a custom part in SolidWorks to fix it.</li>
+          <li>3D printed the part and went through several versions until it fit the pipe system properly.</li>
+          <li>Tested the final print under real water flow.</li>
+        </ul></div>
+        <footer>
+          <p class="res">The printed part fully resolved the flow issue in the pipe system.</p>
+          <div class="tags"><span>SolidWorks</span><span>3D printing</span></div>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="sec-head"><h2>Skills</h2><span class="px">Software, hardware, people</span></div>
+    <div class="skills">
+      <div>
+        <h3>Programming and tools</h3>
+        <div class="tags"><span>Java</span><span>C/C++</span><span>Python</span><span>JavaScript</span><span>React</span><span>HTML</span><span>CSS</span><span>Git</span><span>GitHub</span></div>
+      </div>
+      <div>
+        <h3>Hardware and design</h3>
+        <div class="tags"><span>SolidWorks</span><span>AutoCAD</span><span>MATLAB</span><span>Arduino</span><span>Circuit design</span><span>Soldering</span><span>3D printing</span></div>
+      </div>
+      <div>
+        <h3>Working with others</h3>
+        <div class="tags"><span>Problem-solving</span><span>Teamwork</span><span>Resilience</span><span>Adaptability</span><span>Customer service</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="two">
+      <div class="edu">
+        <div>
+          <span class="px" style="color:var(--muted)">Now studying</span>
+          <h3>Bachelor of Engineering</h3>
+          <p>University of Guelph, Guelph, Ontario<br>2025 to 2030</p>
+        </div>
+        <div>
+          <span class="px" style="color:var(--muted)">Before</span>
+          <h3>OSSD</h3>
+          <p>St. Francis Xavier Secondary School<br>2021 to 2025</p>
+        </div>
+      </div>
+      <div class="contact">
+        <span class="px">Contact</span>
+        <h2>Let's build something.</h2>
+        <div class="row">
+          <span class="label">Email</span>
+          <span class="val" id="email-val">zohaibhassan5366@gmail.com</span>
+          <a class="btn pulse" href="mailto:zohaibhassan5366@gmail.com">Email me</a>
+          <button class="copy" type="button" data-target="email-val">Copy</button>
+        </div>
+        <div class="row">
+          <span class="label">Phone</span>
+          <span class="val" id="phone-val">+1 289-400-1362</span>
+          <a class="btn" href="tel:+12894001362">Call me</a>
+          <button class="copy" type="button" data-target="phone-val">Copy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="label">Zohaib Hassan, Ontario, Canada</span>
+    <a href="https://github.com/Zohaib1Hassan" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+</div>
+
+<script>
+try {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('svg.render').forEach(function (s) { if (s.pauseAnimations) s.pauseAnimations(); });
+  }
+} catch (e) {}
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var el = document.getElementById(btn.getAttribute('data-target'));
+    var text = el.textContent.trim();
+    var done = function (msg) {
+      btn.textContent = msg;
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+    };
+    var fallback = function () {
+      try {
+        var r = document.createRange();
+        r.selectNodeContents(el);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+        done('Selected');
+      } catch (e) { done('Copy'); }
+    };
+    try {
+      navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback);
+    } catch (e) { fallback(); }
+  });
+});
+</script>
+
+</body></html>
